@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Football Matches</title>
+  <title>Live Football Matches</title>
   <style>
     body {
       font-family: Arial;
@@ -9,54 +9,74 @@
       color: white;
       text-align: center;
     }
+
     h1 {
-      margin-top: 20px;
+      margin: 20px;
     }
+
     .match {
       background: #1a2238;
       margin: 10px auto;
       padding: 15px;
       border-radius: 10px;
-      width: 300px;
+      width: 350px;
+    }
+
+    .league {
+      color: #00ffcc;
+      font-size: 14px;
+    }
+
+    .teams {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    .score {
+      font-size: 20px;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
 
-<h1>⚽ Football Matches</h1>
-
-<div id="matches"></div>
+<h1>⚽ Live Football Matches</h1>
+<div id="matches">Loading...</div>
 
 <script>
-const matches = [
-  {
-    home: "Arsenal",
-    away: "Chelsea",
-    score: "2 - 1"
-  },
-  {
-    home: "Barcelona",
-    away: "Real Madrid",
-    score: "1 - 1"
-  },
-  {
-    home: "Liverpool",
-    away: "Man City",
-    score: "3 - 2"
+const API_KEY = "YOUR_API_KEY";
+
+fetch("https://api.football-data.org/v4/matches", {
+  headers: {
+    "X-Auth-Token": API_KEY
   }
-];
+})
+.then(response => response.json())
+.then(data => {
+  const container = document.getElementById("matches");
+  container.innerHTML = "";
 
-const container = document.getElementById("matches");
+  data.matches.slice(0, 10).forEach(match => {
+    const div = document.createElement("div");
+    div.className = "match";
 
-matches.forEach(match => {
-  const div = document.createElement("div");
-  div.className = "match";
-  div.innerHTML = `
-    <h3>${match.home} vs ${match.away}</h3>
-    <p>${match.score}</p>
-  `;
-  container.appendChild(div);
+    const home = match.homeTeam.name;
+    const away = match.awayTeam.name;
+    const score = match.score.fullTime.home ?? "-" ;
+    const score2 = match.score.fullTime.away ?? "-";
+
+    div.innerHTML = `
+      <div class="league">${match.competition.name}</div>
+      <div class="teams">${home} vs ${away}</div>
+      <div class="score">${score} - ${score2}</div>
+    `;
+
+    container.appendChild(div);
+  });
+})
+.catch(err => {
+  document.getElementById("matches").innerText = "Error loading data";
 });
 </script>
 

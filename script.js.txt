@@ -1,0 +1,65 @@
+const API_KEY = "3df8b86d74msh4e5082df938e939p18272djsnf61a9a119f98";
+
+async function getMatches() {
+    const url = "https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all";
+
+    const options = {
+        method: "GET",
+        headers: {
+            "X-RapidAPI-Key": API_KEY,
+            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
+        }
+    };
+
+    try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        const matchesDiv = document.getElementById("matches");
+        matchesDiv.innerHTML = "";
+
+        if (data.response.length === 0) {
+            matchesDiv.innerHTML = "No live matches now";
+            return;
+        }
+
+        data.response.forEach(match => {
+            const home = match.teams.home.name;
+            const away = match.teams.away.name;
+            const homeLogo = match.teams.home.logo;
+            const awayLogo = match.teams.away.logo;
+
+            const goalsHome = match.goals.home;
+            const goalsAway = match.goals.away;
+
+            const time = match.fixture.status.elapsed;
+
+            matchesDiv.innerHTML += `
+                <div class="match">
+                    <div>
+                        <div class="team">
+                            <img src="${homeLogo}">
+                            ${home}
+                        </div>
+                        <div class="team">
+                            <img src="${awayLogo}">
+                            ${away}
+                        </div>
+                    </div>
+
+                    <div class="score">${goalsHome} - ${goalsAway}</div>
+
+                    <div class="status">${time}'</div>
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+getMatches();
+
+/* AUTO REFRESH EVERY 30 SECONDS */
+setInterval(getMatches, 30000);
